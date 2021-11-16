@@ -1,3 +1,11 @@
+# Machine_Learning_termproject
+Machine learning team 1 Term project, Department of Software, Gachon Univ, South Korea. (2021 autumn semester)
+<br> <br>
+
+## Introduction
+It has scaling+encoded datasets in 12 ways, and trains through four classification and clustering models, respectively.
+
+## scikit-learn style manual
 
 ## Classification
 
