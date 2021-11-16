@@ -28,171 +28,9 @@ gmm_purity = {}
 dbscan_purity = {}
 Spectral_purity = {}
 
-def main():
-    # data load and fill&drop
-    data = read_data()
-    
-    # split feature and GT(age)
-    age = pd.DataFrame(data["AGE_GROUP"])
-    feature = data.drop(columns=["AGE_GROUP"])
-
-    # preprocessing - scaling and encoding
-    feature = Preprocessing(feature, ["SEX", "HEAR_LEFT", "HEAR_RIGHT", "OLIG_PROTE_CD", "SMK_STAT_TYPE_CD", "DRK_YN"], 
-                            ["HEIGHT", "WEIGHT", "WAIST", "SIGHT_LEFT", "SIGHT_RIGHT", "BP_HIGH", "BP_LWST", "BLDS", "HMG", "CREATININE", "SGOT_AST", "SGPT_ALT", "GAMMA_GTP"])
-
-    # set hyper-parameter
-    n_cluster = [2, 4, 8, 10, 13, 15]
-    DBSCAN_eps = [0.1, 0.2, 0.5, 0.7, 1]
-
-    for key, value in feature.items():
-        start_time = time.time()
-
-        # if "minmax_ordinal" not in key:
-        #     continue
-        # n_cluster = [4]
-        # DBSCAN_eps = [0.2]
-
-        pca = PCA(n_components=2) # 주성분을 몇개로 할지 결정
-        printcipalComponents = pca.fit_transform(value)
-        principalDf = pd.DataFrame(data=printcipalComponents, columns = ['PCA1', 'PCA2'])
-
-        plt.title(key)
-        plt.scatter(principalDf["PCA1"], principalDf["PCA2"])
-        plt.show()
-
-        # # k-mean
-        # print("Kmeans")
-        # kmean_sum_of_squared_distances = []
-        # kmean_silhouette_sub = []
-        # kmeans_purity_sub = []
-        # for k in n_cluster:
-        #     kmeans = KMeans(n_clusters=k).fit(principalDf)
-        #     plt.title("K-menas_15_standard_ordinal")
-        #     plt.scatter(principalDf["PCA1"], principalDf["PCA2"], c=kmeans.labels_)
-        #     plt.show()
-
-            # # sum of distance for elbow methods
-            # kmean_sum_of_squared_distances.append(kmeans.inertia_)
-
-            # # silhouette (range -1~1)
-            # kmean_silhouette_sub.append(silhouette_score(principalDf, kmeans.labels_, metric='euclidean'))
-
-            # # purity
-            # kmeans_purity_sub.append(purity_score(age, kmeans.labels_))
-            # print(time.time() - start_time)
-
-        # if "original" in key.split("_"):
-        #     kmeans_sumofDistance_original[key] = kmean_sum_of_squared_distances
-        # else:
-        #     kmeans_sumofDistance[key] = kmean_sum_of_squared_distances
-
-        # kmeans_silhouette[key] = kmean_silhouette_sub
-        # kmeans_purity[key] = kmeans_purity_sub
-
-        # # EM
-        # print("EM (GMM)")
-        # gmm_silhouette_sub = []
-        # gmm_purity_sub = []
-
-        # for k in n_cluster:
-        #     gmm = GaussianMixture(n_components=k)
-        #     labels = gmm.fit_predict(principalDf)
-            
-        #     plt.title("EM_4_normalize_onehot")
-        #     plt.scatter(principalDf["PCA1"], principalDf["PCA2"], c=labels)
-        #     plt.show()
-
-        #     # silhouette (range -1~1)
-        #     gmm_silhouette_sub.append(silhouette_score(principalDf, labels, metric='euclidean'))
-
-        #     # purity
-        #     gmm_purity_sub.append(purity_score(age, labels))
-        #     print(time.time() - start_time)
-
-        # gmm_silhouette[key] = gmm_silhouette_sub
-        # gmm_purity[key] = gmm_purity_sub
-
-
-        # # DBSCAN
-        # print("dbscan")
-        # dbscan_silhouette_sub = []
-        # dbscan_purity_sub = []
-
-        # for eps in DBSCAN_eps:
-        #     dbscan = DBSCAN(eps=eps, min_samples=10)
-        #     labels = dbscan.fit_predict(principalDf)
-            
-        #     plt.title("DBSCAN_0.2_minmax_ordinal")
-        #     plt.scatter(principalDf["PCA1"], principalDf["PCA2"], c=labels)
-        #     plt.show()
-
-        #     # silhouette (range -1~1)
-        #     try:
-        #         current_silhouette = silhouette_score(principalDf, labels, metric='euclidean')
-        #     except:
-        #         current_silhouette = -5
-
-        #     dbscan_silhouette_sub.append(current_silhouette)
-        #     dbscan_purity_sub.append(purity_score(age, labels))
-        #     print(time.time() - start_time)
-
-        # dbscan_silhouette[key] = dbscan_silhouette_sub
-        # dbscan_purity[key] = dbscan_purity_sub
-
-
-        # Spectral
-        # print("Spectral")
-        # Spectral_silhouette_sub = []
-        # Spectral_purity_sub = []
-
-        # for k in n_cluster:
-        #     Spectral_Clustering = SpectralClustering(n_clusters=k)
-        #     labels = Spectral_Clustering.fit_predict(principalDf)
-
-        #     Spectral_silhouette_sub.append(silhouette_score(principalDf, labels, metric='euclidean'))
-        #     Spectral_purity_sub.append(purity_score(age, labels))
-        #     print(time.time() - start_time)
-
-        # Spectral_silhouette[key] = Spectral_silhouette_sub
-        # Spectral_purity[key] = Spectral_purity_sub
-
-
-
-    ## k-mean result
-    # makeplot("KMeans_distance", kmeans_sumofDistance, n_cluster)
-    # makeplot("KMeans_distance_original", kmeans_sumofDistance_original, n_cluster)
-    # makeplot("KMeans_silhouette", kmeans_silhouette, n_cluster)
-    # key, value = fineMaxValueKey(kmeans_silhouette)
-    # print("k-means best silhouette : ", value, key)
-    # makeplot("KMeans_purity", kmeans_purity, n_cluster)
-    # key, value = fineMaxValueKey(kmeans_purity)
-    # print("k-means best purity : ", value, key)
-
-
-    # # GMM result
-    # makeplot("EM_silhouette", gmm_silhouette, n_cluster)
-    # makeplot("EM_purity", gmm_purity, n_cluster)
-    # key, value = fineMaxValueKey(gmm_silhouette)
-    # print("EM best silhouette : ", value, key)
-    # key, value = fineMaxValueKey(gmm_purity)
-    # print("EM best purity : ", value, key)
-
-    # # DBSCAN result
-    # makeplot("DBSCAN_silhouette", dbscan_silhouette, DBSCAN_eps)
-    # makeplot("DBSCAN_purity", dbscan_purity, DBSCAN_eps)
-    # key, value = fineMaxValueKey(dbscan_silhouette)
-    # print("DBSCAN best silhouette : ", value, key)
-    # key, value = fineMaxValueKey(dbscan_purity)
-    # print("DBSCAN best purity : ", value, key)
-
-    # # Spectral result
-    # makeplot("Spectral_silhouette", Spectral_silhouette, n_cluster)
-    # makeplot("Spectral_purity", Spectral_purity, n_cluster)
-    # key, value = fineMaxValueKey(Spectral_silhouette)
-    # print("Spectral best silhouette : ", value, key)
-    # key, value = fineMaxValueKey(Spectral_purity)
-    # print("Spectral best purity : ", value, key)
-
+# set hyper-parameter
+n_cluster = [2, 4, 8, 10, 13, 15]
+DBSCAN_eps = [0.1, 0.2, 0.5, 0.7, 1]
 
 # fill or drop na value
 def checkNA(data):
@@ -297,6 +135,169 @@ def fineMaxValueKey(dict):
 
     return key, largest
 
+def clustering(data, target):
+    start_time = time.time()
+
+    # k-mean
+    print("Kmeans")
+    kmean_sum_of_squared_distances = []
+    kmean_silhouette_sub = []
+    kmeans_purity_sub = []
+    for k in n_cluster:
+        kmeans = KMeans(n_clusters=k).fit(data)
+
+        # sum of distance for elbow methods
+        kmean_sum_of_squared_distances.append(kmeans.inertia_)
+
+        # silhouette (range -1~1)
+        kmean_silhouette_sub.append(silhouette_score(data, kmeans.labels_, metric='euclidean'))
+
+        # purity
+        kmeans_purity_sub.append(purity_score(target, kmeans.labels_))
+        print(time.time() - start_time)
+
+    # for short return
+    ksd, ks, kp = kmean_sum_of_squared_distances, kmean_silhouette_sub, kmeans_purity_sub
+
+
+    # EM
+    print("EM (GMM)")
+    gmm_silhouette_sub = []
+    gmm_purity_sub = []
+
+    for k in n_cluster:
+        gmm = GaussianMixture(n_components=k)
+        labels = gmm.fit_predict(data)
+        
+        # silhouette (range -1~1)
+        gmm_silhouette_sub.append(silhouette_score(data, labels, metric='euclidean'))
+
+        # purity
+        gmm_purity_sub.append(purity_score(target, labels))
+        print(time.time() - start_time)
+
+    gs, gp = gmm_silhouette_sub, gmm_purity_sub
+
+
+    # DBSCAN
+    print("dbscan")
+    dbscan_silhouette_sub = []
+    dbscan_purity_sub = []
+
+    for eps in DBSCAN_eps:
+        dbscan = DBSCAN(eps=eps, min_samples=10)
+        labels = dbscan.fit_predict(data)
+        
+        # silhouette (range -1~1)
+        try:
+            current_silhouette = silhouette_score(data, labels, metric='euclidean')
+        except:
+            current_silhouette = -5
+
+        dbscan_silhouette_sub.append(current_silhouette)
+        dbscan_purity_sub.append(purity_score(target, labels))
+        print(time.time() - start_time)
+
+    ds, dp = dbscan_silhouette_sub, dbscan_purity_sub
+
+    # Spectral
+    print("Spectral")
+    Spectral_silhouette_sub = []
+    Spectral_purity_sub = []
+
+    for k in n_cluster:
+        Spectral_Clustering = SpectralClustering(n_clusters=k)
+        labels = Spectral_Clustering.fit_predict(data)
+
+        Spectral_silhouette_sub.append(silhouette_score(data, labels, metric='euclidean'))
+        Spectral_purity_sub.append(purity_score(target, labels))
+        print(time.time() - start_time)
+
+    ss, sp = Spectral_silhouette_sub, Spectral_purity_sub
+
+
+    return ksd, ks, kp, gs, gp, ds, dp, ss, sp 
+
+
+def main():
+    # data load and fill&drop
+    data = read_data()
+    
+    # split feature and GT(age)
+    age = pd.DataFrame(data["AGE_GROUP"])
+    feature = data.drop(columns=["AGE_GROUP"])
+
+    # preprocessing - scaling and encoding
+    feature = Preprocessing(feature, ["SEX", "HEAR_LEFT", "HEAR_RIGHT", "OLIG_PROTE_CD", "SMK_STAT_TYPE_CD", "DRK_YN"], 
+                            ["HEIGHT", "WEIGHT", "WAIST", "SIGHT_LEFT", "SIGHT_RIGHT", "BP_HIGH", "BP_LWST", "BLDS", "HMG", "CREATININE", "SGOT_AST", "SGPT_ALT", "GAMMA_GTP"])
+
+
+    for key, value in feature.items():
+
+        pca = PCA(n_components=2)
+        printcipalComponents = pca.fit_transform(value)
+        principalDf = pd.DataFrame(data=printcipalComponents, columns = ['PCA1', 'PCA2'])
+
+        # plt.title(key)
+        # plt.scatter(principalDf["PCA1"], principalDf["PCA2"])
+        # plt.show()
+
+        # clustering
+        kmean_sum_of_squared_distances, kmean_silhouette_sub, kmeans_purity_sub, gmm_silhouette_sub, gmm_purity_sub, dbscan_silhouette_sub, dbscan_purity_sub, Spectral_silhouette_sub, Spectral_purity_sub = clustering(principalDf, age)
+
+        # save result for total table
+        if "original" in key.split("_"):
+            kmeans_sumofDistance_original[key] = kmean_sum_of_squared_distances
+        else:
+            kmeans_sumofDistance[key] = kmean_sum_of_squared_distances
+
+        kmeans_silhouette[key] = kmean_silhouette_sub
+        kmeans_purity[key] = kmeans_purity_sub
+
+        gmm_silhouette[key] = gmm_silhouette_sub
+        gmm_purity[key] = gmm_purity_sub
+
+        dbscan_silhouette[key] = dbscan_silhouette_sub
+        dbscan_purity[key] = dbscan_purity_sub
+
+        Spectral_silhouette[key] = Spectral_silhouette_sub
+        Spectral_purity[key] = Spectral_purity_sub
+
+
+    # k-mean result
+    makeplot("KMeans_distance", kmeans_sumofDistance, n_cluster)
+    makeplot("KMeans_distance_original", kmeans_sumofDistance_original, n_cluster)
+    makeplot("KMeans_silhouette", kmeans_silhouette, n_cluster)
+    key, value = fineMaxValueKey(kmeans_silhouette)
+    print("k-means best silhouette : ", value, key)
+    makeplot("KMeans_purity", kmeans_purity, n_cluster)
+    key, value = fineMaxValueKey(kmeans_purity)
+    print("k-means best purity : ", value, key)
+
+
+    # GMM result
+    makeplot("EM_silhouette", gmm_silhouette, n_cluster)
+    makeplot("EM_purity", gmm_purity, n_cluster)
+    key, value = fineMaxValueKey(gmm_silhouette)
+    print("EM best silhouette : ", value, key)
+    key, value = fineMaxValueKey(gmm_purity)
+    print("EM best purity : ", value, key)
+
+    # DBSCAN result
+    makeplot("DBSCAN_silhouette", dbscan_silhouette, DBSCAN_eps)
+    makeplot("DBSCAN_purity", dbscan_purity, DBSCAN_eps)
+    key, value = fineMaxValueKey(dbscan_silhouette)
+    print("DBSCAN best silhouette : ", value, key)
+    key, value = fineMaxValueKey(dbscan_purity)
+    print("DBSCAN best purity : ", value, key)
+
+    # Spectral result
+    makeplot("Spectral_silhouette", Spectral_silhouette, n_cluster)
+    makeplot("Spectral_purity", Spectral_purity, n_cluster)
+    key, value = fineMaxValueKey(Spectral_silhouette)
+    print("Spectral best silhouette : ", value, key)
+    key, value = fineMaxValueKey(Spectral_purity)
+    print("Spectral best purity : ", value, key)
 
 
 if __name__ == "__main__":
